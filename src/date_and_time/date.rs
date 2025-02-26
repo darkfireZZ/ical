@@ -34,7 +34,7 @@ fn days_in_month(year: u16, month: u8) -> u8 {
                 28
             }
         }
-        _ => panic!("Invalid month: {}", month),
+        _ => panic!("Invalid month: {month}"),
     }
 }
 
@@ -47,6 +47,7 @@ impl Date {
     /// - `year` is greater than 9999.
     /// - `month` is not in the range 1-12.
     /// - `day` is not in the valid range for the given month and year.
+    #[must_use]
     pub fn new(year: u16, month: u8, day: u8) -> Self {
         if year > 9999 {
             panic!("Year must be less than 10000");
@@ -59,16 +60,19 @@ impl Date {
     }
 
     /// Get the year of the date.
+    #[must_use]
     pub fn year(&self) -> u16 {
         self.year
     }
 
     /// Get the month of the date.
+    #[must_use]
     pub fn month(&self) -> u8 {
         self.month
     }
 
     /// Get the day of the date.
+    #[must_use]
     pub fn day(&self) -> u8 {
         self.day
     }
@@ -150,36 +154,36 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_year() {
-        Date::new(10000, 2, 30);
+        let _ = Date::new(10000, 2, 30);
     }
 
     #[test]
     #[should_panic]
     fn invalid_month_1() {
-        Date::new(2021, 13, 1);
+        let _ = Date::new(2021, 13, 1);
     }
 
     #[test]
     #[should_panic]
     fn invalid_month_2() {
-        Date::new(2021, 0, 1);
+        let _ = Date::new(2021, 0, 1);
     }
 
     #[test]
     #[should_panic]
     fn invalid_day_1() {
-        Date::new(2021, 1, 32);
+        let _ = Date::new(2021, 1, 32);
     }
 
     #[test]
     #[should_panic]
     fn invalid_day_2() {
-        Date::new(2021, 2, 29);
+        let _ = Date::new(2021, 2, 29);
     }
 
     #[test]
     #[should_panic]
     fn invalid_day_3() {
-        Date::new(2021, 4, 0);
+        let _ = Date::new(2021, 4, 0);
     }
 }

@@ -16,11 +16,13 @@ pub struct RecurrenceRule {
 
 impl RecurrenceRule {
     /// Create a new recurrence rule with the specified frequency.
+    #[must_use]
     pub fn new(freq: RecurrenceFrequency) -> Self {
         RecurrenceRule { freq, until: None }
     }
 
     /// Set the end date (inclusive) of the recurrence rule.
+    #[must_use]
     pub fn until(&self, until: DateTime) -> Self {
         RecurrenceRule {
             freq: self.freq,
@@ -33,7 +35,7 @@ impl Display for RecurrenceRule {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "FREQ={}", self.freq)?;
         if let Some(until) = self.until {
-            write!(f, ";UNTIL={}", until)?;
+            write!(f, ";UNTIL={until}")?;
         }
         Ok(())
     }

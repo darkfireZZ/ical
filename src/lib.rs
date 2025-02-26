@@ -1,3 +1,22 @@
+#![doc = include_str!("../README.md")]
+#![warn(
+    clippy::cargo,
+    clippy::pedantic,
+    clippy::absolute_paths,
+    clippy::allow_attributes_without_reason,
+    clippy::dbg_macro,
+    clippy::exit,
+    clippy::todo,
+    clippy::unimplemented,
+    clippy::unwrap_used,
+    missing_debug_implementations,
+    missing_docs
+)]
+// The following lints are enable by default in clippy::pedantic, but are disabled here because
+// they are too aggressive.
+#![allow(clippy::module_name_repetitions, reason = "Occasionally useful")]
+#![allow(clippy::too_many_lines, reason = "This is not bad in my opinion")]
+
 use {
     ical_vcard::{Contentline, Value},
     std::io::{self, Write},
@@ -21,6 +40,15 @@ pub const DEFAULT_PRODUCT_IDENTIFIER: &str = concat!(
     env!("CARGO_PKG_VERSION")
 );
 
+/// Represents an iCalendar object.
+///
+/// > The body of the iCalendar object consists of a sequence of calendar properies and
+/// > one or more calendar components.
+///
+/// For more information, see
+/// - [RFC 5545 section 3 - iCalendar Object
+///   Specification](https://tools.ietf.org/html/rfc5545#section-3)
+/// - and [RFC 5545 section 3.4 - iCalendar Object](https://tools.ietf.org/html/rfc5545#section-3.4)
 #[derive(Debug, Clone)]
 pub struct Calendar {
     /// Corresponds to the `PRODID` property.
@@ -37,6 +65,7 @@ impl Calendar {
         reason = "The default value is not deterministic"
     )]
     /// Create a new [`Calendar`] object.
+    #[must_use]
     pub fn new() -> Self {
         Calendar {
             product_identifier: None,
@@ -57,7 +86,7 @@ impl Calendar {
     pub fn set_product_identifier<S: Into<String>>(&mut self, product_identifier: S) {
         self.product_identifier =
             Some(Value::new(product_identifier.into()).unwrap_or_else(|err| {
-                panic!("Invalid product identifier: {}", err);
+                panic!("Invalid product identifier: {err}");
             }));
     }
 
@@ -67,14 +96,22 @@ impl Calendar {
     ///
     /// See [RFC 5545 section 3.7.3 - Product Identifier](https://tools.ietf.org/html/rfc5545#section-3.7.3)
     /// for more information.
+    #[must_use]
     pub fn product_identifier(&self) -> &str {
         self.product_identifier
             .as_ref()
             .map_or(DEFAULT_PRODUCT_IDENTIFIER, |s| s.as_str())
     }
 
-    // TODO: Improve doc (errors, BufWriter)
     /// Write the calendar to the given writer.
+    ///
+    /// It is advisable to pass a buffered writer such as [`std::io::BufWriter`] to this function.
+    /// This will likely improve performance significantly by reducing the number of write
+    /// operations. See [`std::io::BufWriter`] for more information.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if writing to the writer fails.
     pub fn write<W: Write>(&self, writer: W) -> io::Result<()> {
         let mut writer = ical_vcard::Writer::new(writer);
         writer.write(&Contentline::new("BEGIN", "VCALENDAR"))?;
@@ -88,8 +125,21 @@ impl Calendar {
     }
 }
 
+/// Represents a component of a calendar.
+///
+/// Citing from [RFC 5545 section 3.6 - Calendar
+/// Components](https://tools.ietf.org/html/rfc5545#section-3.6):
+/// > The body of the iCalendar object consists of a sequence of calendar
+/// > properties and one or more calendar components.  The calendar
+/// > properties are attributes that apply to the calendar object as a
+/// > whole.  The calendar components are collections of properties that
+/// > express a particular calendar semantic.  For example, the calendar
+/// > component can specify an event, a to-do, a journal entry, time zone
+/// > information, free/busy time information, or an alarm.
+///
 #[derive(Debug, Clone)]
 pub enum Component {
+    /// An event component.
     Event(Event),
 }
 
@@ -106,6 +156,10 @@ impl Component {
     }
 }
 
+/// Represents an event component of a calendar.
+///
+/// See [RFC 5545 section 3.6.1 - Event
+/// Component](https://tools.ietf.org/html/rfc5545#section-3.6.1)
 #[derive(Debug, Clone)]
 pub struct Event {
     /// Corresponds to the `UID` property.
@@ -134,6 +188,8 @@ impl Event {
     /// Create a new [`Event`].
     ///
     /// The `UID` property is automatically set to a random UUID (v4).
+    #[must_use]
+    #[allow(clippy::missing_panics_doc, reason = "This will never panic")]
     pub fn new(start_date_time: StartDateTime, date_time: DateTime) -> Self {
         Self {
             uid: Value::new(Uuid::new_v4().to_string()).expect("UUIDs are always valid values"),

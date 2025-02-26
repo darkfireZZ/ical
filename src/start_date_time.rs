@@ -8,6 +8,8 @@ use {
     },
 };
 
+/// Represents a Date-Time Start as specified in
+/// [RFC 5545 section 3.8.2.4](https://tools.ietf.org/html/rfc5545#section-3.8.2.4)
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct StartDateTime {
     value: DateAndMaybeTime,

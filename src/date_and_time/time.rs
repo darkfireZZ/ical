@@ -28,6 +28,7 @@ impl Time {
     ///
     /// Note that RFC 5545 technically allows for leap seconds, that is, a `second` value of 60.
     /// However, this is currently not supported.
+    #[must_use]
     pub fn new_utc(hour: u8, minute: u8, second: u8) -> Self {
         if hour > 23 {
             panic!("Hour must be between 0 and 23");
@@ -44,16 +45,19 @@ impl Time {
     }
 
     /// Get the hour.
+    #[must_use]
     pub fn hour(&self) -> u8 {
         self.hour
     }
 
     /// Get the minute.
+    #[must_use]
     pub fn minute(&self) -> u8 {
         self.minute
     }
 
     /// Get the second.
+    #[must_use]
     pub fn second(&self) -> u8 {
         self.second
     }
@@ -152,18 +156,18 @@ mod tests {
     #[test]
     #[should_panic]
     fn invalid_hour() {
-        Time::new_utc(24, 0, 0);
+        let _ = Time::new_utc(24, 0, 0);
     }
 
     #[test]
     #[should_panic]
     fn invalid_minute() {
-        Time::new_utc(0, 60, 0);
+        let _ = Time::new_utc(0, 60, 0);
     }
 
     #[test]
     #[should_panic]
     fn invalid_second() {
-        Time::new_utc(0, 0, 60);
+        let _ = Time::new_utc(0, 0, 60);
     }
 }

@@ -11,7 +11,9 @@ use {
 /// [RFC 5545 section 3.3.5](https://tools.ietf.org/html/rfc5545#section-3.3.5).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DateTime {
+    /// Date component.
     pub date: Date,
+    /// Time component.
     pub time: Time,
 }
 
