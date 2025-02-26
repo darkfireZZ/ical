@@ -196,6 +196,16 @@ pub struct Event {
     /// See [RFC 5545 section 3.8.2.4 - Date-Time
     /// Start](https://tools.ietf.org/html/rfc5545#section-3.8.2.4)
     start_date_time: StartDateTime,
+    /// Corresponds to the `DESCRIPTION` property.
+    ///
+    /// See [RFC 5545 section 3.8.1.5 -
+    /// Description](https://tools.ietf.org/html/rfc5545#section-3.8.1.5)
+    description: Option<Value<String>>,
+    /// Corresponds to the `LOCATION` property.
+    ///
+    /// See [RFC 5545 section 3.8.1.7 -
+    /// Location](https://tools.ietf.org/html/rfc5545#section-3.8.1.7)
+    location: Option<Value<String>>,
     /// Corresponds to the `SUMMARY` property.
     ///
     /// See [RFC 5545 section 3.8.1.12 -
@@ -219,12 +229,36 @@ impl Event {
             uid: Value::new(Uuid::new_v4().to_string()).expect("UUIDs are always valid values"),
             date_time,
             start_date_time,
+            description: None,
+            location: None,
             summary: None,
             recurrence_rule: None,
         }
     }
 
-    /// Set the summary for the event
+    /// Set the description of the event.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `description` is not a valid [`Value`].
+    pub fn set_description<S: Into<String>>(&mut self, description: S) {
+        self.description = Some(Value::new(description.into()).unwrap_or_else(|err| {
+            panic!("Invalid description: {err}");
+        }));
+    }
+
+    /// Set the location of the event.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `location` is not a valid [`Value`].
+    pub fn set_location<S: Into<String>>(&mut self, location: S) {
+        self.location = Some(Value::new(location.into()).unwrap_or_else(|err| {
+            panic!("Invalid location: {err}");
+        }));
+    }
+
+    /// Set the summary for the event.
     ///
     /// # Panics
     ///
@@ -247,9 +281,18 @@ impl Event {
     /// Returns an error if writing to the writer fails.
     fn write<W: Write>(&self, writer: &mut ical_vcard::Writer<W>) -> io::Result<()> {
         writer.write(&Contentline::new("BEGIN", "VEVENT"))?;
-        writer.write(&Contentline::new("DTSTAMP", self.date_time.to_string()))?;
         writer.write(&Contentline::new("UID", self.uid.as_str()))?;
+        writer.write(&Contentline::new("DTSTAMP", self.date_time.to_string()))?;
         self.start_date_time.write(writer)?;
+        if let Some(description) = &self.description {
+            writer.write(&Contentline::new("DESCRIPTION", description.as_str()))?;
+        }
+        if let Some(location) = &self.location {
+            writer.write(&Contentline::new("LOCATION", location.as_str()))?;
+        }
+        if let Some(summary) = &self.summary {
+            writer.write(&Contentline::new("SUMMARY", summary.as_str()))?;
+        }
         if let Some(recurrence_rule) = &self.recurrence_rule {
             writer.write(&Contentline::new("RRULE", recurrence_rule.to_string()))?;
         }
