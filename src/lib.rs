@@ -105,8 +105,8 @@ impl Calendar {
     }
 
     /// Add a [`Component`] to the calendar.
-    pub fn add_component(&mut self, component: Component) -> &mut Self {
-        self.components.push(component);
+    pub fn add_component<C: Into<Component>>(&mut self, component: C) -> &mut Self {
+        self.components.push(component.into());
         self
     }
 
@@ -166,6 +166,12 @@ impl Component {
         match self {
             Component::Event(event) => event.write(writer),
         }
+    }
+}
+
+impl From<Event> for Component {
+    fn from(event: Event) -> Self {
+        Component::Event(event)
     }
 }
 
