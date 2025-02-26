@@ -50,16 +50,46 @@ impl Time {
         self.hour
     }
 
+    /// Set the hour.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `hour` is greater than 23.
+    pub fn set_hour(&mut self, hour: u8) {
+        assert!((hour <= 23), "Hour must be between 0 and 23");
+        self.hour = hour;
+    }
+
     /// Get the minute.
     #[must_use]
     pub fn minute(&self) -> u8 {
         self.minute
     }
 
+    /// Set the minute.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `minute` is greater than 59.
+    pub fn set_minute(&mut self, minute: u8) {
+        assert!((minute <= 59), "Minute must be between 0 and 59");
+        self.minute = minute;
+    }
+
     /// Get the second.
     #[must_use]
     pub fn second(&self) -> u8 {
         self.second
+    }
+
+    /// Set the second.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `second` is greater than 59.
+    pub fn set_second(&mut self, second: u8) {
+        assert!((second <= 59), "Second must be between 0 and 59");
+        self.second = second;
     }
 }
 

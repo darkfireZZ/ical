@@ -65,16 +65,50 @@ impl Date {
         self.year
     }
 
+    /// Set the year of the date.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given year is greater than 9999.
+    pub fn set_year(&mut self, year: u16) {
+        assert!((year <= 9999), "Year must be less than 10000");
+        self.year = year;
+    }
+
     /// Get the month of the date.
     #[must_use]
     pub fn month(&self) -> u8 {
         self.month
     }
 
+    /// Set the month of the date.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given month is not in the range 1-12.
+    pub fn set_month(&mut self, month: u8) {
+        assert!((1..=12).contains(&month), "Month must be between 1 and 12");
+        self.month = month;
+    }
+
     /// Get the day of the date.
     #[must_use]
     pub fn day(&self) -> u8 {
         self.day
+    }
+
+    /// Set the day of the date.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given day is not in the valid range for the current month and year.
+    pub fn set_day(&mut self, day: u8) {
+        assert!(
+            !(day < 1 || day > days_in_month(self.year, self.month)),
+            "Day ({day}) out of range for month ({})",
+            self.month
+        );
+        self.day = day;
     }
 }
 
