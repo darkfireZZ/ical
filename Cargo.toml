@@ -2,6 +2,11 @@
 name = "ical"
 version = "0.1.0"
 edition = "2024"
+description = "Library for generating iCalendar files"
+license = "AGPL-3.0"
+repository = "https://github.com/darkfirezz/ical"
+categories = [ "parser-implementations", "parsing", "date-and-time" ]
+keywords = [ "iCalendar", "generator", "parser", "ical", "ics" ]
 
 [dependencies]
 ical_vcard = "0.4.0"
