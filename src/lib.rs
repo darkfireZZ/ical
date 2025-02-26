@@ -196,6 +196,11 @@ pub struct Event {
     /// See [RFC 5545 section 3.8.2.4 - Date-Time
     /// Start](https://tools.ietf.org/html/rfc5545#section-3.8.2.4)
     start_date_time: StartDateTime,
+    /// Corresponds to the `SUMMARY` property.
+    ///
+    /// See [RFC 5545 section 3.8.1.12 -
+    /// Summary](https://tools.ietf.org/html/rfc5545#section-3.8.1.12)
+    summary: Option<Value<String>>,
     /// Corresponds to the `RRULE` property.
     ///
     /// See [RFC 5545 section 3.8.5.3 - Recurrence
@@ -214,8 +219,20 @@ impl Event {
             uid: Value::new(Uuid::new_v4().to_string()).expect("UUIDs are always valid values"),
             date_time,
             start_date_time,
+            summary: None,
             recurrence_rule: None,
         }
+    }
+
+    /// Set the summary for the event
+    ///
+    /// # Panics
+    ///
+    /// Panics if `summary` is not a valid [`Value`].
+    pub fn set_summary<S: Into<String>>(&mut self, summary: S) {
+        self.summary = Some(Value::new(summary.into()).unwrap_or_else(|err| {
+            panic!("Invalid summary: {err}");
+        }));
     }
 
     /// Set a recurrence rule for the event.
