@@ -10,6 +10,9 @@ pub use date_and_time::{Date, DateTime, ParseDateError, ParseDateTimeError, Pars
 mod recurrence_rule;
 pub use recurrence_rule::{RecurrenceFrequency, RecurrenceRule};
 
+mod start_date_time;
+pub use start_date_time::StartDateTime;
+
 /// Default product identifier.
 pub const DEFAULT_PRODUCT_IDENTIFIER: &str = concat!(
     "nicolabruhin.com : ",
@@ -107,17 +110,23 @@ impl Component {
 pub struct Event {
     /// Corresponds to the `UID` property.
     ///
-    /// See [RFC 5545 section 3.8.4.7 - Unique Identifier](https://www.rfc-editor.org/rfc/rfc5545#section-3.8.4.7)
+    /// See [RFC 5545 section 3.8.4.7 - Unique
+    /// Identifier](https://tools.ietf.org/html/rfc5545#section-3.8.4.7)
     uid: Value<String>,
     /// Corresponds to the `DTSTAMP` property.
     ///
     /// See [RFC 5545 section 3.8.7.2 - Date-Time
-    /// Stamp](https://www.rfc-editor.org/rfc/rfc5545#section-3.8.7.2)
+    /// Stamp](https://tools.ietf.org/html/rfc5545#section-3.8.7.2)
     date_time: DateTime,
+    /// Corresponds to the `DTSTART` property.
+    ///
+    /// See [RFC 5545 section 3.8.2.4 - Date-Time
+    /// Start](https://tools.ietf.org/html/rfc5545#section-3.8.2.4)
+    start_date_time: StartDateTime,
     /// Corresponds to the `RRULE` property.
     ///
     /// See [RFC 5545 section 3.8.5.3 - Recurrence
-    /// Rule](https://www.rfc-editor.org/rfc/rfc5545#section-3.8.5.3)
+    /// Rule](https://tools.ietf.org/html/rfc5545#section-3.8.5.3)
     recurrence_rule: Option<RecurrenceRule>,
 }
 
@@ -125,10 +134,11 @@ impl Event {
     /// Create a new [`Event`].
     ///
     /// The `UID` property is automatically set to a random UUID (v4).
-    pub fn new(date_time: DateTime) -> Self {
+    pub fn new(start_date_time: StartDateTime, date_time: DateTime) -> Self {
         Self {
             uid: Value::new(Uuid::new_v4().to_string()).expect("UUIDs are always valid values"),
             date_time,
+            start_date_time,
             recurrence_rule: None,
         }
     }
@@ -147,6 +157,7 @@ impl Event {
         writer.write(&Contentline::new("BEGIN", "VEVENT"))?;
         writer.write(&Contentline::new("DTSTAMP", self.date_time.to_string()))?;
         writer.write(&Contentline::new("UID", self.uid.as_str()))?;
+        self.start_date_time.write(writer)?;
         if let Some(recurrence_rule) = &self.recurrence_rule {
             writer.write(&Contentline::new("RRULE", recurrence_rule.to_string()))?;
         }
