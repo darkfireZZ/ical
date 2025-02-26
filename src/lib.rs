@@ -83,11 +83,12 @@ impl Calendar {
     /// # Panics
     ///
     /// Panics if the product identifier is not a valid [`Value`].
-    pub fn set_product_identifier<S: Into<String>>(&mut self, product_identifier: S) {
+    pub fn set_product_identifier<S: Into<String>>(&mut self, product_identifier: S) -> &mut Self {
         self.product_identifier =
             Some(Value::new(product_identifier.into()).unwrap_or_else(|err| {
                 panic!("Invalid product identifier: {err}");
             }));
+        self
     }
 
     /// Get the product identifier of the calendar.
@@ -101,6 +102,18 @@ impl Calendar {
         self.product_identifier
             .as_ref()
             .map_or(DEFAULT_PRODUCT_IDENTIFIER, |s| s.as_str())
+    }
+
+    /// Add a [`Component`] to the calendar.
+    pub fn add_component(&mut self, component: Component) -> &mut Self {
+        self.components.push(component);
+        self
+    }
+
+    /// Get the [`Component`]s of the calendar.
+    #[must_use]
+    pub fn components(&self) -> &[Component] {
+        &self.components
     }
 
     /// Write the calendar to the given writer.
